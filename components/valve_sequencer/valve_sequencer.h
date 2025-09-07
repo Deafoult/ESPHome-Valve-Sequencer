@@ -1,0 +1,47 @@
+#pragma once
+
+#include "esphome/core/component.h"
+#include "esphome/components/switch/template_switch.h"
+#include "esphome/components/binary_sensor/binary_sensor.h"
+#include "esphome/components/output/binary_output.h"
+
+namespace esphome {
+namespace valve_sequencer {
+
+// Eine kleine Hilfsstruktur, um alle Teile eines Kreislaufs zusammenzuhalten
+struct Circuit {
+  switch_::TemplateSwitch *control_switch;
+  output::BinaryOutput *valve_output;
+  binary_sensor::BinarySensor *status_sensor;
+  binary_sensor::BinarySensor *moving_sensor;
+
+  bool is_open{false};
+  bool is_changing{false};
+  uint32_t timer_start_time{0};
+};
+
+class ValveSequencer : public Component {
+ public:
+  // Methoden, die aus der YAML-Konfiguration aufgerufen werden
+  void set_max_concurrent(int max) { this->max_concurrent_ = max; }
+  void set_open_time(uint32_t ms) { this->open_time_ms_ = ms; }
+  void set_global_status_sensor(binary_sensor::BinarySensor *sensor) { this->global_status_sensor_ = sensor; }
+
+  // Methode, die von __init__.py aufgerufen wird, um die Kreise zu registrieren
+  void add_circuit(switch_::TemplateSwitch *sw, output::BinaryOutput *out,
+                   binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving);
+
+  // Standard ESPHome Methoden
+  void setup() override;
+  void loop() override;
+  void dump_config() override;
+
+ protected:
+  int max_concurrent_;
+  uint32_t open_time_ms_;
+  std::vector<Circuit> circuits_;
+  binary_sensor::BinarySensor *global_status_sensor_{nullptr};
+};
+
+}  // namespace valve_sequencer
+}  // namespace esphome

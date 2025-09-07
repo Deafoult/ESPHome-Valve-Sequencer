@@ -1,0 +1,61 @@
+substitutions:
+  # Ändere dies zu deinem Gerätenamen
+  device_name: my-heating-control
+  friendly_name: My Heating Control
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  # ... (weitere ESPHome-Standardeinstellungen wie platform, board etc.)
+
+external_components:
+  - source:
+      # This component is loaded directly from GitHub.
+      github://Deafoult/esphome-valve-sequencer@main
+
+esp32:
+  board: esp32dev
+  # ...
+logger:
+api:
+ota:
+- platform: esphome
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+  power_save_mode: light # Aktiviert den WLAN-Energiesparmodus
+
+# 1. Definiere die Outputs für deine Relais
+output:
+  - platform: gpio
+    id: relay_kitchen
+    pin: 4
+  - platform: gpio
+    id: relay_living_room
+    pin: 16
+    inverted: true # Beispiel für ein Relais, das bei LOW schaltet
+
+
+valve_sequencer:
+  max_concurrent: 5
+  open_time: 5min
+  global_status_sensor:
+    name: "Heating System Status"
+    id: heating_system_status
+  # 2. Konfiguriere die Heizkreise und verweise auf die oben definierten Outputs
+  circuits:
+    - name: "Kitchen Heating Circuit"
+      id: kitchen_heating_circuit
+      output: relay_kitchen
+    - name: "Living Room Heating Circuit"
+      id: living_room_heating_circuit
+      output: relay_living_room
+      inverted: true # Beispiel: Dieses Relais ist Active-Low.
+    - name: "Bathroom Heating Circuit"
+      id: bathroom_heating_circuit
+      output: relay_bathroom
+      inverted: true # Dieses Ventil wird invertiert angesteuert, obwohl der Output 'relay_bathroom' nicht als invertiert definiert ist.
+    # --- Füge hier deine weiteren Heizkreise hinzu ---
+    # - name: "My Other Circuit"
+    #   output: my_other_relay_id
