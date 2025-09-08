@@ -63,8 +63,9 @@ async def to_code(config):
         # Get the already created Output instance
         out = await cg.get_variable(circuit_config[CONF_OUTPUT])
 
-        # Create the Template Switch
-        sw = cg.new_Pvariable(f"valve_sequencer_switch_{i}")
+        # Create the Template Switch. First, declare an ID for it.
+        switch_id = circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}"
+        sw = cg.new_Pvariable(cv.declare_id(switch.TemplateSwitch)(switch_id))
         await switch.register_switch(sw, circuit_config)
 
         # Create the two Binary Sensors
