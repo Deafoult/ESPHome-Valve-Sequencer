@@ -73,7 +73,7 @@ async def to_code(config):
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
         }
         #switch_config = await cv.ensure_component_schema(switch_config, "switch")
-        sw = await switch.new_switch(circuit_config.get(CONF_ID),switch_config)
+        sw = await switch.new_switch(CONF_ID,switch_config)
 
         # Create the two Binary Sensors
         status_sensor_conf = binary_sensor.binary_sensor_schema(
