@@ -60,7 +60,7 @@ valve_sequencer:
     # ... see below
 ```
 
-### Konfiguration der Heizkreise
+### Configuration of the heating circuits
 
 First, define your output pins (e.g., for your relays). Then, reference these outputs in the `circuits` list.
 
@@ -88,7 +88,7 @@ valve_sequencer:
       output: relay_bathroom
       inverted: true # This valve is controlled with inverted logic, even if the output itself is not defined as inverted.
 
-    # ... weitere Kreisläufe
+    # ... additional circuits
 ```
 
 ## Functionality
