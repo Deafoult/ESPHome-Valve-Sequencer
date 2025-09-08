@@ -1,7 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import switch, binary_sensor, output
-from esphome.const import (
+from esphome.const import (  # pylint: disable=unused-import
     CONF_ID,
     CONF_OUTPUT,
     CONF_NAME,
@@ -10,6 +10,7 @@ from esphome.const import (
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_MOVING,
 )
+from esphome.components.template.switch import TEMPLATE_SWITCH_SCHEMA
 
 # Namespace for our C++ code
 valve_sequencer_ns = cg.esphome_ns.namespace("valve_sequencer")
@@ -66,7 +67,7 @@ async def to_code(config):
 
         # Create the Template Switch. First, declare an ID for it.
         switch_id = circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}"
-        template_switch_class = switch.SWITCH_SCHEMA.get(CONF_PLATFORM)
+        template_switch_class = TEMPLATE_SWITCH_SCHEMA[CONF_PLATFORM]
         sw = cg.new_Pvariable(cv.declare_id(template_switch_class)(switch_id))
         await switch.register_switch(sw, circuit_config)
 
