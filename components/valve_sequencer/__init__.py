@@ -1,16 +1,14 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import switch, binary_sensor, output
-from esphome.const import (  # pylint: disable=unused-import
+from esphome.const import (
     CONF_ID,
     CONF_OUTPUT,
     CONF_NAME,
     CONF_INVERTED,
-    CONF_PLATFORM,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_MOVING,
 )
-from esphome.components.template.switch import TEMPLATE_SWITCH_SCHEMA
 
 # Namespace for our C++ code
 valve_sequencer_ns = cg.esphome_ns.namespace("valve_sequencer")
@@ -65,11 +63,13 @@ async def to_code(config):
         # Get the already created Output instance
         out = await cg.get_variable(circuit_config[CONF_OUTPUT])
 
-        # Create the Template Switch. First, declare an ID for it.
-        switch_id = circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}"
-        template_switch_class = TEMPLATE_SWITCH_SCHEMA[CONF_PLATFORM]
-        sw = cg.new_Pvariable(cv.declare_id(template_switch_class)(switch_id))
-        await switch.register_switch(sw, circuit_config)
+        # Create the Template Switch by building a config for it and calling the helper
+        switch_config = {
+            "platform": "template",
+            "name": circuit_config[CONF_NAME],
+            "id": circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
+        }
+        sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
         status_sensor_conf = binary_sensor.binary_sensor_schema(
@@ -88,4 +88,7 @@ async def to_code(config):
         moving_sensor = await binary_sensor.new_binary_sensor(moving_sensor_conf)
 
         # Call the C++ method to add this circuit to the main component
-        cg.add(hub.add_circuit(sw, out, status_sensor, moving_sensor))
+        is_inverted = circuit_config[CONF_INVERTED]
+        cg.add(
+            hub.add_circuit(sw, out, status_sensor, moving_sensor, is_inverted)
+        )
