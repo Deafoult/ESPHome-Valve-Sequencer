@@ -6,6 +6,7 @@ from esphome.const import (
     CONF_OUTPUT,
     CONF_NAME,
     CONF_INVERTED,
+    CONF_PLATFORM,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_MOVING,
 )
@@ -65,7 +66,8 @@ async def to_code(config):
 
         # Create the Template Switch. First, declare an ID for it.
         switch_id = circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}"
-        sw = cg.new_Pvariable(cv.declare_id(switch.TemplateSwitch)(switch_id))
+        template_switch_class = switch.SWITCH_SCHEMA.get(CONF_PLATFORM)
+        sw = cg.new_Pvariable(cv.declare_id(template_switch_class)(switch_id))
         await switch.register_switch(sw, circuit_config)
 
         # Create the two Binary Sensors
