@@ -29,7 +29,7 @@ CIRCUIT_SCHEMA = cv.Schema(
 )
 
 # The main configuration schema for our component in YAML
-CONFIG_SCHEMA = cv.Schema(
+CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
     {
         cv.GenerateID(): cv.declare_id(ValveSequencer),
         cv.Required("circuits"): cv.All(cv.ensure_list(CIRCUIT_SCHEMA)),
@@ -39,10 +39,7 @@ CONFIG_SCHEMA = cv.Schema(
             device_class=DEVICE_CLASS_OPENING
         ),
     }
-    .extend(
-        cv.require_component("output")
-    ) # Ensures the output component is loaded
-).extend(cv.COMPONENT_SCHEMA)
+).extend(cv.require_component("output"))
 
 
 async def to_code(config):
