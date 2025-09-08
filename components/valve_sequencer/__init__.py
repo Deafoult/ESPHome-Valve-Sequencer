@@ -6,7 +6,6 @@ from esphome.const import (
     CONF_OUTPUT,
     CONF_NAME,
     CONF_INVERTED,
-    CONF_API,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_MOVING,
 )
