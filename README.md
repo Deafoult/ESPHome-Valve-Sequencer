@@ -5,18 +5,18 @@ This is a custom component for [ESPHome](https://esphome.io/) that provides inte
 ## Features
 
 - **Multi-Circuit Control:** Easily configure any number of heating circuits in a single YAML file.
-- **Begrenzung des Einschaltstroms:** Eine konfigurierbare `max_concurrent` Einstellung verhindert, dass zu viele Ventile gleichzeitig öffnen.
-- **Konfigurierbare Öffnungszeit:** Die `open_time` für die Stellantriebe kann global festgelegt werden.
-- **Detaillierte Status-Sensoren:** Für jeden Heizkreis werden automatisch drei Entitäten in Home Assistant erstellt:
-    - `switch`: Zum Ein- und Ausschalten des Heizkreises.
-    - `binary_sensor (moving)`: Zeigt an, ob das Ventil gerade aktiv öffnet.
-    - `binary_sensor (status)`: Zeigt an, ob das Ventil vollständig geöffnet ist.
-- **Globaler Status-Sensor:** Ein optionaler Sensor, der anzeigt, ob mindestens ein Heizkreis im System aktiv (vollständig geöffnet) ist.
-- **Autonomer Betrieb:** Die gesamte Steuerungslogik läuft autark auf dem ESP-Gerät. Bei einem Verbindungsverlust zu Home Assistant werden laufende Prozesse (wie das Öffnen eines Ventils) korrekt zu Ende geführt. Neue Befehle werden erst bei Wiederherstellung der Verbindung angenommen.
+- **Inrush Current Limiting:** A configurable `max_concurrent` setting prevents too many valves from opening simultaneously.
+- **Configurable Opening Time:** The `open_time` for the thermal actuators can be set globally.
+- **Detailed Status Sensors:** For each heating circuit, three entities are automatically created in Home Assistant:
+    - `switch`: To turn the heating circuit on and off.
+    - `binary_sensor (moving)`: Indicates if the valve is currently in the process of opening.
+    - `binary_sensor (status)`: Indicates if the valve is fully open.
+- **Global Status Sensor:** An optional sensor that indicates if at least one heating circuit in the system is active (fully open).
+- **Autonomous Operation:** The entire control logic runs independently on the ESP device. If the connection to Home Assistant is lost, ongoing processes (like opening a valve) will complete correctly. New commands are only accepted once the connection is restored.
 
-## Projektstruktur
+## Project Structure
 
-Das Projekt besteht aus einer `external_component` für ESPHome, die die gesamte Logik kapselt.
+The project consists of an `external_component` for ESPHome that encapsulates all the logic.
 
 ```plaintext
 esphome-valve-sequencer/
@@ -42,8 +42,6 @@ To use this component, add the following to your device's YAML file.
 external_components:
   # When using from GitHub
   - source: github://Deafoult/esphome-valve-sequencer@main
-  # For local development, you can use:
-  # - source: components
 
 valve_sequencer:
   # Maximum number of valves allowed to open SIMULTANEOUSLY.
@@ -93,20 +91,20 @@ valve_sequencer:
     # ... weitere Kreisläufe
 ```
 
-## Funktionsweise
+## Functionality
 
-1.  Ein Heizkreis wird über den `switch` in Home Assistant eingeschaltet.
-2.  Die Komponente prüft, ob die Anzahl der bereits öffnenden Ventile (`is_changing`) kleiner ist als `max_concurrent`.
-3.  Wenn ein "Slot" frei ist, wird das Relais des Ventils eingeschaltet und der `moving_sensor` wird `true`.
-4.  Nach Ablauf der `open_time` wird der `moving_sensor` `false` und der `status_sensor` `true`. Das Relais bleibt weiterhin eingeschaltet, um das Ventil offen zu halten (gemäß aktueller Logik).
-5.  Wird der Heizkreis in Home Assistant ausgeschaltet, schaltet die Komponente das Relais aus und setzt alle Sensoren auf `false`.
-6.  Wenn kein "Slot" zum Öffnen frei ist, wartet der Heizkreis und versucht es in der nächsten Iteration erneut.
+1. A heating circuit is turned on via the `switch` in Home Assistant.
+2. The component checks if the number of valves currently opening (`is_changing`) is less than `max_concurrent`.
+3. If a "slot" is available, the relay of the valve is activated and the `moving_sensor` is set to `true`.
+4. After the `open_time` has elapsed, the `moving_sensor` is set to `false` and the `status_sensor` to `true`. The relay remains activated to keep the valve open (according to current logic).
+5. When the heating circuit is turned off in Home Assistant, the component turns off the relay and sets all sensors to `false`.
+6. If no "slot" is available for opening, the heating circuit waits and tries again in the next iteration.
 
 ---
 
-## Lizenz
+## License
 
-Dieses Projekt ist unter der [MIT-Lizenz](LICENSE) veröffentlicht.
+This project is licensed under the [MIT License](LICENSE).
 
 ---
 *This project was developed with the assistance of Gemini Code Assist.*

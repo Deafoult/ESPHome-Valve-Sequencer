@@ -1,12 +1,12 @@
 substitutions:
-  # Ändere dies zu deinem Gerätenamen
+  # Change this to your device name
   device_name: my-heating-control
   friendly_name: My Heating Control
 
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
-  # ... (weitere ESPHome-Standardeinstellungen wie platform, board etc.)
+  # ... (other standard ESPHome settings like platform, board, etc.)
 
 external_components:
   - source:
@@ -24,9 +24,9 @@ ota:
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
-  power_save_mode: light # Aktiviert den WLAN-Energiesparmodus
+  power_save_mode: light # Enables Wi-Fi power saving mode
 
-# 1. Definiere die Outputs für deine Relais
+# 1. Define the outputs for your relays
 output:
   - platform: gpio
     id: relay_kitchen
@@ -34,7 +34,7 @@ output:
   - platform: gpio
     id: relay_living_room
     pin: 16
-    inverted: true # Beispiel für ein Relais, das bei LOW schaltet
+    inverted: true # Example for a relay that switches on LOW
 
 
 valve_sequencer:
@@ -43,7 +43,7 @@ valve_sequencer:
   global_status_sensor:
     name: "Heating System Status"
     id: heating_system_status
-  # 2. Konfiguriere die Heizkreise und verweise auf die oben definierten Outputs
+  # 2. Configure the heating circuits and reference the outputs defined above.
   circuits:
     - name: "Kitchen Heating Circuit"
       id: kitchen_heating_circuit
@@ -51,11 +51,11 @@ valve_sequencer:
     - name: "Living Room Heating Circuit"
       id: living_room_heating_circuit
       output: relay_living_room
-      inverted: true # Beispiel: Dieses Relais ist Active-Low.
+      inverted: true # Example: This relay is Active-Low.
     - name: "Bathroom Heating Circuit"
       id: bathroom_heating_circuit
       output: relay_bathroom
-      inverted: true # Dieses Ventil wird invertiert angesteuert, obwohl der Output 'relay_bathroom' nicht als invertiert definiert ist.
-    # --- Füge hier deine weiteren Heizkreise hinzu ---
+      inverted: true # This valve is controlled with inverted logic, even though the 'relay_bathroom' output is not defined as inverted.
+    # --- Add your other heating circuits here ---
     # - name: "My Other Circuit"
     #   output: my_other_relay_id

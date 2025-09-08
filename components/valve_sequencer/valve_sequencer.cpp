@@ -35,38 +35,38 @@ void ValveSequencer::add_circuit(switch_::TemplateSwitch *sw, output::BinaryOutp
 }
 
 void ValveSequencer::loop() {
-  // Prüfen, ob eine Verbindung zu Home Assistant besteht.
+  // Check if there is a connection to Home Assistant.
   bool is_connected = api::global_api_server != nullptr && api::global_api_server->is_connected();
   uint32_t now = millis();
 
-  // Hauptschleife: Gehe jeden Heizkreis durch und verarbeite seine Logik.
+  // Main loop: Iterate through each heating circuit and process its logic.
   for (auto &c : this->circuits_) {
-    // Zustand 1: Timer ist abgelaufen, Öffnungsvorgang beenden
+    // State 1: Timer has expired, finish the opening process
     if (c.is_changing && (now - c.timer_start_time > this->open_time_ms_)) {
       ESP_LOGI(TAG, "Circuit '%s': Open process finished.", c.control_switch->get_name().c_str());
       c.is_changing = false;
       c.is_open = true;
       c.moving_sensor->publish_state(false);
       c.status_sensor->publish_state(true);
-      // Das Relais bleibt absichtlich eingeschaltet.
+      // The relay intentionally remains on.
     }
-    // Nur auf neue Befehle vom Switch reagieren, wenn eine API-Verbindung besteht.
+    // Only react to new commands from the switch if an API connection exists.
     if (is_connected) {
       bool desired_state = c.control_switch->state;
 
-      // Zustand 2: Nutzer will schließen (desired=OFF), während das Ventil offen ist oder gerade öffnet.
+      // State 2: User wants to close (desired=OFF) while the valve is open or opening.
       if (!desired_state && (c.is_open || c.is_changing)) {
         ESP_LOGI(TAG, "Circuit '%s': Closing valve (command from HA).", c.control_switch->get_name().c_str());
         c.is_open = false;
-        c.is_changing = false;  // Stoppt auch einen eventuellen Öffnungsvorgang
+        c.is_changing = false;  // Also stops any potential opening process
         c.valve_output->turn_off();
         c.status_sensor->publish_state(false);
         c.moving_sensor->publish_state(false);
-        // Der Switch-Zustand wurde bereits von HA auf 'false' gesetzt, hier ist keine Aktion nötig.
+        // The switch state has already been set to 'false' by HA, no action needed here.
       }
-      // Zustand 3: Nutzer will öffnen (desired=ON, is_open=OFF, is_changing=OFF)
+      // State 3: User wants to open (desired=ON, is_open=OFF, is_changing=OFF)
       else if (desired_state && !c.is_open && !c.is_changing) {
-        // Zähle erneut, wie viele gerade öffnen, um die aktuellste Zahl zu haben.
+        // Count again how many are currently opening to have the most up-to-date number.
         int changing_to_open = 0;
         for (const auto &circuit_check : this->circuits_) {
           if (circuit_check.is_changing) {
@@ -85,19 +85,19 @@ void ValveSequencer::loop() {
     }
   }
 
-  // Nach der Verarbeitung aller Zustände, aktualisiere den globalen Sensor.
+  // After processing all states, update the global sensor.
   bool any_circuit_open = false;
   for (auto &c : this->circuits_) {
-    // Prüfen, ob irgendein Kreislauf aktiv ist (offen oder öffnend) für den globalen Sensor.
-    if (c.is_open) { // Nur prüfen, ob der Kreislauf vollständig offen ist
+    // Check if any circuit is active (open) for the global sensor.
+    if (c.is_open) { // Only check if the circuit is fully open
       any_circuit_open = true;
-      break; // Ein offener Kreislauf reicht aus.
+      break; // One open circuit is enough.
     }
   }
 
-  // Nach der Verarbeitung aller Kreise den Gesamtstatus-Sensor aktualisieren
+  // After processing all circuits, update the global status sensor
   if (this->global_status_sensor_ != nullptr) {
-    // Der globale Sensor ist an, wenn mindestens ein Ventil vollständig offen ist.
+    // The global sensor is on if at least one valve is fully open.
     this->global_status_sensor_->publish_state(any_circuit_open);
   }
 }

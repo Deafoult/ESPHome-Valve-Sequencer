@@ -11,15 +11,15 @@ from esphome.const import (
     DEVICE_CLASS_MOVING,
 )
 
-# Namespace für unseren C++ Code
+# Namespace for our C++ code
 valve_sequencer_ns = cg.esphome_ns.namespace("valve_sequencer")
 
 CONF_GLOBAL_STATUS_SENSOR = "global_status_sensor"
 
-# Unsere Haupt-Komponenten-Klasse
+# Our main component class
 ValveSequencer = valve_sequencer_ns.class_("ValveSequencer", cg.Component)
 
-# Schema für einen einzelnen Heizkreis
+# Schema for a single heating circuit
 CIRCUIT_SCHEMA = cv.Schema(
     {
         cv.Required(CONF_OUTPUT): cv.use_id(output.BinaryOutput),
@@ -29,7 +29,7 @@ CIRCUIT_SCHEMA = cv.Schema(
     }
 )
 
-# Das Haupt-Konfigurationsschema für unsere Komponente in der YAML
+# The main configuration schema for our component in YAML
 CONFIG_SCHEMA = cv.Schema(
     {
         cv.GenerateID(): cv.declare_id(ValveSequencer),
@@ -42,16 +42,16 @@ CONFIG_SCHEMA = cv.Schema(
     }
     .extend(
         cv.require_component("output")
-    ) # Stellt sicher, dass die Output-Komponente geladen wird
+    ) # Ensures the output component is loaded
 ).extend(cv.COMPONENT_SCHEMA)
 
 
 async def to_code(config):
-    # Erstelle die Haupt-Instanz unserer C++ Klasse
+    # Create the main instance of our C++ class
     hub = cg.new_Pvariable(config[CONF_ID])
     await cg.register_component(hub, config)
 
-    # Setze die Konfigurationswerte
+    # Set the configuration values
     cg.add(hub.set_max_concurrent(config["max_concurrent"]))
     cg.add(hub.set_open_time(config["open_time"]))
 
@@ -59,16 +59,16 @@ async def to_code(config):
         sens = await binary_sensor.new_binary_sensor(config[CONF_GLOBAL_STATUS_SENSOR])
         cg.add(hub.set_global_status_sensor(sens))
 
-    # Gehe durch alle konfigurierten "circuits" und erstelle die Entitäten
+    # Go through all configured "circuits" and create the entities
     for i, circuit_config in enumerate(config["circuits"]):
-        # Hole die bereits erstellte Output-Instanz
+        # Get the already created Output instance
         out = await cg.get_variable(circuit_config[CONF_OUTPUT])
 
-        # Erstelle den Template Switch
+        # Create the Template Switch
         sw = cg.new_Pvariable(f"valve_sequencer_switch_{i}")
         await switch.register_switch(sw, circuit_config)
 
-        # Erstelle die zwei Binary Sensors
+        # Create the two Binary Sensors
         status_sensor_conf = binary_sensor.binary_sensor_schema(
             device_class=DEVICE_CLASS_OPENING
         )({CONF_NAME: f"{circuit_config[CONF_NAME]} Status"})
@@ -84,5 +84,5 @@ async def to_code(config):
         status_sensor = await binary_sensor.new_binary_sensor(status_sensor_conf)
         moving_sensor = await binary_sensor.new_binary_sensor(moving_sensor_conf)
 
-        # Rufe die C++ Methode auf, um diesen Kreis zur Hauptkomponente hinzuzufügen
+        # Call the C++ method to add this circuit to the main component
         cg.add(hub.add_circuit(sw, out, status_sensor, moving_sensor))

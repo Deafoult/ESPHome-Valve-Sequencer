@@ -8,7 +8,7 @@
 namespace esphome {
 namespace valve_sequencer {
 
-// Eine kleine Hilfsstruktur, um alle Teile eines Kreislaufs zusammenzuhalten
+// A small helper struct to hold all parts of a circuit together
 struct Circuit {
   switch_::TemplateSwitch *control_switch;
   output::BinaryOutput *valve_output;
@@ -22,16 +22,16 @@ struct Circuit {
 
 class ValveSequencer : public Component {
  public:
-  // Methoden, die aus der YAML-Konfiguration aufgerufen werden
+  // Methods called from the YAML configuration
   void set_max_concurrent(int max) { this->max_concurrent_ = max; }
   void set_open_time(uint32_t ms) { this->open_time_ms_ = ms; }
   void set_global_status_sensor(binary_sensor::BinarySensor *sensor) { this->global_status_sensor_ = sensor; }
 
-  // Methode, die von __init__.py aufgerufen wird, um die Kreise zu registrieren
+  // Method called from __init__.py to register the circuits
   void add_circuit(switch_::TemplateSwitch *sw, output::BinaryOutput *out,
                    binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving);
 
-  // Standard ESPHome Methoden
+  // Standard ESPHome methods
   void setup() override;
   void loop() override;
   void dump_config() override;
