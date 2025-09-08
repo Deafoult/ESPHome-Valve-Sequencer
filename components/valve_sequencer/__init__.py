@@ -39,7 +39,7 @@ CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
             device_class=DEVICE_CLASS_OPENING
         ),
     }
-).extend(cv.require_component("output"))
+).extend(cv.requires_component("output"))
 
 
 async def to_code(config):
