@@ -1,12 +1,12 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
 from esphome.components import switch, binary_sensor, output
-from esphome.components.template.switch import TEMPLATE_SWITCH_SCHEMA
 from esphome.const import (
     CONF_ID,
     CONF_OUTPUT,
     CONF_NAME,
     CONF_INVERTED,
+    CONF_PLATFORM,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_MOVING,
 )
@@ -65,14 +65,14 @@ async def to_code(config):
         # Get the already created Output instance
         out = await cg.get_variable(circuit_config[CONF_OUTPUT])
 
-        # Create the Template Switch by building a config for it, validating it,
-        # and then calling the new_switch helper.
-        switch_config = TEMPLATE_SWITCH_SCHEMA(
-            {
-                CONF_NAME: circuit_config[CONF_NAME],
-                CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
-            }
-        )
+        # Create the Template Switch by building a config for it and calling the helper.
+        # We use cv.ensure_component_schema to get the correct schema for the 'template' platform.
+        switch_config = {
+            CONF_PLATFORM: "template",
+            CONF_NAME: circuit_config[CONF_NAME],
+            CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
+        }
+        switch_config = await cv.ensure_component_schema(switch_config, "switch")
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
