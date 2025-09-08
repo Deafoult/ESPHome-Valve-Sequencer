@@ -29,17 +29,20 @@ CIRCUIT_SCHEMA = cv.Schema(
 )
 
 # The main configuration schema for our component in YAML
-CONFIG_SCHEMA = cv.COMPONENT_SCHEMA.extend(
-    {
-        cv.GenerateID(): cv.declare_id(ValveSequencer),
-        cv.Required("circuits"): cv.All(cv.ensure_list(CIRCUIT_SCHEMA)),
-        cv.Optional("max_concurrent", default=5): cv.int_,
-        cv.Optional("open_time", default="5min"): cv.positive_time_period_milliseconds,
-        cv.Optional(CONF_GLOBAL_STATUS_SENSOR): binary_sensor.binary_sensor_schema(
-            device_class=DEVICE_CLASS_OPENING
-        ),
-    }
-).extend(cv.requires_component("output"))
+CONFIG_SCHEMA = cv.All(
+    cv.COMPONENT_SCHEMA.extend(
+        {
+            cv.GenerateID(): cv.declare_id(ValveSequencer),
+            cv.Required("circuits"): cv.All(cv.ensure_list(CIRCUIT_SCHEMA)),
+            cv.Optional("max_concurrent", default=5): cv.int_,
+            cv.Optional("open_time", default="5min"): cv.positive_time_period_milliseconds,
+            cv.Optional(CONF_GLOBAL_STATUS_SENSOR): binary_sensor.binary_sensor_schema(
+                device_class=DEVICE_CLASS_OPENING
+            ),
+        }
+    ),
+    cv.requires_component("output"),
+)
 
 
 async def to_code(config):
