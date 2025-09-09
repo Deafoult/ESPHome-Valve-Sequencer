@@ -24,6 +24,8 @@ wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
+switch: []
+
 # 1. Define the outputs for your relays
 output:
   - platform: gpio
