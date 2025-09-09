@@ -71,6 +71,7 @@ async def to_code(config):
         switch_config = {
             CONF_NAME: circuit_config[CONF_NAME],
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
+            CONF_OPTIMISTIC: True,
         }
 
         # RECOGNITION_MARKER_DYNAMIC_COMPONENT_VALIDATION
