@@ -8,6 +8,7 @@ from esphome.const import (
     CONF_NAME,
     CONF_INVERTED,
     CONF_OPTIMISTIC,
+    CONF_PLATFORM,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_MOVING,
 )
@@ -75,6 +76,8 @@ async def to_code(config):
             CONF_OPTIMISTIC: True,
         }
         switch_config = template_switch.CONFIG_SCHEMA(switch_config)
+        # Add platform back in for codegen
+        switch_config[CONF_PLATFORM] = "template"
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
