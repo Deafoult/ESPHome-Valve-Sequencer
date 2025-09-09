@@ -1,0 +1,108 @@
+substitutions:
+  # Change this to your device name
+  device_name: esphome-heizung
+  friendly_name: ESPHome Heizung
+
+esphome:
+  name: ${device_name}
+  friendly_name: ${friendly_name}
+  name_add_mac_suffix: false
+
+external_components:
+  - source: "github://Deafoult/ESPHome-Valve-Sequencer@main"
+#newversion
+esp32:
+  board: esp32dev
+  framework:
+    type: arduino
+    
+logger:
+api:
+ota:
+
+wifi:
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+# 1. Define the outputs for your relays
+output:
+  - platform: gpio
+    pin: GPIO4
+    id: kreislauf_output_01
+  - platform: gpio
+    pin: GPIO16
+    id: kreislauf_output_02
+  - platform: gpio
+    pin: GPIO18
+    id: kreislauf_output_03
+  - platform: gpio
+    pin: GPIO27
+    id: kreislauf_output_04
+  - platform: gpio
+    pin: GPIO19
+    id: kreislauf_output_05
+  - platform: gpio
+    pin: GPIO17
+    id: kreislauf_output_06
+  - platform: gpio
+    pin: GPIO21
+    id: kreislauf_output_07
+  - platform: gpio
+    pin: GPIO33
+    id: kreislauf_output_08
+  - platform: gpio
+    pin: GPIO25
+    id: kreislauf_output_09
+  - platform: gpio
+    pin: GPIO14
+    id: kreislauf_output_10
+  - platform: gpio
+    pin: GPIO26
+    id: kreislauf_output_11
+  - platform: gpio
+    pin: GPIO13
+    id: kreislauf_output_12
+
+valve_sequencer:
+  max_concurrent: 5
+  open_time: 5min
+  global_status_sensor:
+    name: "Status Gesamt"
+    id: whole_state
+  circuits:
+    - name: "Kreislauf01"
+      id: kreislauf01
+      output: kreislauf_output_01
+    - name: "Kreislauf02"
+      id: kreislauf02
+      output: kreislauf_output_02
+    - name: "Kreislauf03"
+      id: kreislauf03
+      output: kreislauf_output_03
+    - name: "Kreislauf04"
+      id: kreislauf04
+      output: kreislauf_output_04
+    - name: "Kreislauf05"
+      id: kreislauf05
+      output: kreislauf_output_05
+    - name: "Kreislauf06"
+      id: kreislauf06
+      output: kreislauf_output_06
+    - name: "Kreislauf07"
+      id: kreislauf07
+      output: kreislauf_output_07
+    - name: "Kreislauf08"
+      id: kreislauf08
+      output: kreislauf_output_08
+    - name: "Kreislauf09"
+      id: kreislauf09
+      output: kreislauf_output_09
+    - name: "Kreislauf10"
+      id: kreislauf10
+      output: kreislauf_output_10
+    - name: "Kreislauf11"
+      id: kreislauf11
+      output: kreislauf_output_11
+    - name: "Kreislauf12"
+      id: kreislauf12
+      output: kreislauf_output_12
