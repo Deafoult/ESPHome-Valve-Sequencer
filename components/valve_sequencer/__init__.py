@@ -81,7 +81,7 @@ async def to_code(config):
         #    b) It converts the simple string ID (e.g., "my_switch") into a full C++ ID object
         #       (an `ID` instance with a `.type` attribute), which is required by `new_Pvariable` later.
         # Failure to do this correctly leads to `AttributeError: 'EStr' object has no attribute 'type'`.
-        switch_config = template.switch.CONFIG_SCHEMA(switch_config)
+        switch_config = template.SWITCH_SCHEMA(switch_config)
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
