@@ -1,6 +1,6 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import switch, binary_sensor, output
+from esphome.components import switch, binary_sensor, output, template
 from esphome.const import (
     CONF_ID,
     CONF_OUTPUT,
@@ -72,11 +72,11 @@ async def to_code(config):
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
         }
 
-        # VERY IMPORTANT: Validate the dynamically created config.
-        # This step converts the string ID into a proper ID object with a .type attribute
-        # and adds the necessary C++ includes for the template switch.
-        switch_config = await cv.ensure_component_schema(switch_config, switch.SWITCH_SCHEMA)
-
+        # VERY IMPORTANT: Validate the dynamically created config against the target
+        # component's schema (template.SWITCH_SCHEMA). This step converts the
+        # string ID into a proper ID object with a .type attribute and adds the
+        # necessary C++ includes for the template switch.
+        switch_config = await cv.validate_component_config(switch_config, template.SWITCH_SCHEMA)
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
