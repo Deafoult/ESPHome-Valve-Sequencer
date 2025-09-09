@@ -24,7 +24,7 @@ void ValveSequencer::dump_config() {
   ESP_LOGCONFIG(TAG, "  Valve open time: %u ms", this->open_time_ms_);
 }
 
-void ValveSequencer::add_circuit(switch_::TemplateSwitch *sw, output::BinaryOutput *out,
+void ValveSequencer::add_circuit(switch_::Switch *sw, output::BinaryOutput *out,
                                  binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving,
                                  bool is_inverted) {
   this->circuits_.push_back({

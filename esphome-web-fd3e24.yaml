@@ -19,12 +19,15 @@ esp32:
 logger:
 api:
 ota:
+  platform: esphome
 
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password
 
 switch: []
+
+binary_sensor: []
 
 # 1. Define the outputs for your relays
 output:

@@ -29,7 +29,7 @@ class ValveSequencer : public Component {
   void set_global_status_sensor(binary_sensor::BinarySensor *sensor) { this->global_status_sensor_ = sensor; }
 
   // Method called from __init__.py to register the circuits
-  void add_circuit(switch_::TemplateSwitch *sw, output::BinaryOutput *out,
+  void add_circuit(switch_::Switch *sw, output::BinaryOutput *out,
                    binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving, bool is_inverted);
 
   // Standard ESPHome methods
