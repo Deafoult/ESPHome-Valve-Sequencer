@@ -7,7 +7,7 @@ from esphome.const import (
     CONF_OUTPUT,
     CONF_NAME,
     CONF_INVERTED,
-    CONF_PLATFORM,
+    CONF_OPTIMISTIC,
     DEVICE_CLASS_OPENING,
     DEVICE_CLASS_MOVING,
 )
@@ -67,7 +67,6 @@ async def to_code(config):
         out = await cg.get_variable(circuit_config[CONF_OUTPUT])
 
         # Create the Template Switch by building a config for it and calling the helper.
-        # Create the Template Switch by building a config for it and calling the helper.
         switch_config = {
             CONF_NAME: circuit_config[CONF_NAME],
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
@@ -85,8 +84,6 @@ async def to_code(config):
         # Failure to do this correctly leads to `AttributeError: 'EStr' object has no attribute 'type'`.
         # The correct way to validate a dynamic platform config is to call the CONFIG_SCHEMA
         # from the specific platform's module (here: template.switch). This schema call
-        # handles the validation and the crucial conversion of the string ID to a C++ ID object.
-                # from the specific platform's module (here: template.switch). This schema call
         # handles the validation and the crucial conversion of the string ID to a C++ ID object.
         switch_config = template_switch.CONFIG_SCHEMA(switch_config)
         sw = await switch.new_switch(switch_config)
