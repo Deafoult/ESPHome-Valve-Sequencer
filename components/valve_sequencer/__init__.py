@@ -67,8 +67,8 @@ async def to_code(config):
         out = await cg.get_variable(circuit_config[CONF_OUTPUT])
 
         # Create the Template Switch by building a config for it and calling the helper.
+        # Create the Template Switch by building a config for it and calling the helper.
         switch_config = {
-            CONF_PLATFORM: "template",
             CONF_NAME: circuit_config[CONF_NAME],
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
         }
