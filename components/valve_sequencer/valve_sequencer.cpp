@@ -10,7 +10,7 @@ static const char *const TAG = "valve_sequencer";
 void ValveSequencer::setup() {
   ESP_LOGI(TAG, "ValveSequencer component setup complete.");
   // Set initial state for all valves (e.g., close all)
-  for (auto &circuit : this->circuits_) {
+  for (auto &circuit : this->circuits_) { // NOLINT(readability-identifier-naming)
     circuit.valve_output->turn_off();
     circuit.status_sensor->publish_state(false);
     circuit.moving_sensor->publish_state(false);
@@ -25,12 +25,14 @@ void ValveSequencer::dump_config() {
 }
 
 void ValveSequencer::add_circuit(switch_::TemplateSwitch *sw, output::BinaryOutput *out,
-                                 binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving) {
+                                 binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving,
+                                 bool is_inverted) {
   this->circuits_.push_back({
       .control_switch = sw,
       .valve_output = out,
       .status_sensor = status,
       .moving_sensor = moving,
+      .is_inverted = is_inverted,
   });
 }
 
@@ -40,7 +42,7 @@ void ValveSequencer::loop() {
   uint32_t now = millis();
 
   // Main loop: Iterate through each heating circuit and process its logic.
-  for (auto &c : this->circuits_) {
+  for (auto &c : this->circuits_) { // NOLINT(readability-identifier-naming)
     // State 1: Timer has expired, finish the opening process
     if (c.is_changing && (now - c.timer_start_time > this->open_time_ms_)) {
       ESP_LOGI(TAG, "Circuit '%s': Open process finished.", c.control_switch->get_name().c_str());
@@ -59,7 +61,7 @@ void ValveSequencer::loop() {
         ESP_LOGI(TAG, "Circuit '%s': Closing valve (command from HA).", c.control_switch->get_name().c_str());
         c.is_open = false;
         c.is_changing = false;  // Also stops any potential opening process
-        c.valve_output->turn_off();
+        c.valve_output->set_state(c.is_inverted); // OFF state
         c.status_sensor->publish_state(false);
         c.moving_sensor->publish_state(false);
         // The switch state has already been set to 'false' by HA, no action needed here.
@@ -78,7 +80,7 @@ void ValveSequencer::loop() {
           ESP_LOGI(TAG, "Circuit '%s': Starting open process.", c.control_switch->get_name().c_str());
           c.is_changing = true;
           c.timer_start_time = now;
-          c.valve_output->turn_on();
+          c.valve_output->set_state(!c.is_inverted); // ON state
           c.moving_sensor->publish_state(true);
         }
       }
@@ -87,7 +89,7 @@ void ValveSequencer::loop() {
 
   // After processing all states, update the global sensor.
   bool any_circuit_open = false;
-  for (auto &c : this->circuits_) {
+  for (auto &c : this->circuits_) { // NOLINT(readability-identifier-naming)
     // Check if any circuit is active (open) for the global sensor.
     if (c.is_open) { // Only check if the circuit is fully open
       any_circuit_open = true;

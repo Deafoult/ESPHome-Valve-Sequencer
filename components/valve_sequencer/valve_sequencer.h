@@ -15,6 +15,7 @@ struct Circuit {
   binary_sensor::BinarySensor *status_sensor;
   binary_sensor::BinarySensor *moving_sensor;
 
+  bool is_inverted{false};
   bool is_open{false};
   bool is_changing{false};
   uint32_t timer_start_time{0};
@@ -29,7 +30,7 @@ class ValveSequencer : public Component {
 
   // Method called from __init__.py to register the circuits
   void add_circuit(switch_::TemplateSwitch *sw, output::BinaryOutput *out,
-                   binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving);
+                   binary_sensor::BinarySensor *status, binary_sensor::BinarySensor *moving, bool is_inverted);
 
   // Standard ESPHome methods
   void setup() override;
