@@ -75,8 +75,9 @@ async def to_code(config):
         # VERY IMPORTANT: Validate the dynamically created config against the target
         # component's schema (template.SWITCH_SCHEMA). This step converts the
         # string ID into a proper ID object with a .type attribute by calling the
-        # correct validation function.
-        switch_config = switch.SWITCH_SCHEMA(switch_config)
+        # correct validation function for a specific component platform.
+        # This function looks at CONF_PLATFORM and applies the correct schema.
+        switch_config = await cv.validate_component_config(switch_config, switch.SWITCH_SCHEMA)
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
