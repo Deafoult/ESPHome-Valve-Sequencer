@@ -66,15 +66,17 @@ async def to_code(config):
         out = await cg.get_variable(circuit_config[CONF_OUTPUT])
 
         # Create the Template Switch by building a config for it and calling the helper.
-        # We use cv.ensure_component_schema to get the correct schema for the 'template' platform.
         switch_config = {
             CONF_PLATFORM: "template",
             CONF_NAME: circuit_config[CONF_NAME],
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
         }
-        # The first argument to new_switch is the config for the switch.
-        # The helper function will automatically use the CONF_ID from the config
-        # to create the C++ variable.
+
+        # VERY IMPORTANT: Validate the dynamically created config.
+        # This step converts the string ID into a proper ID object with a .type attribute
+        # and adds the necessary C++ includes for the template switch.
+        switch_config = await cv.ensure_component_schema(switch_config, switch.SWITCH_SCHEMA)
+
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
