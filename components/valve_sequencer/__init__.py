@@ -45,6 +45,8 @@ CONFIG_SCHEMA = cv.All(
         }
     ),
     cv.requires_component("output"),
+    cv.requires_component("switch"),
+    cv.requires_component("binary_sensor"),
 )
 
 
