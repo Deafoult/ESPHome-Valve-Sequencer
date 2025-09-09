@@ -1,7 +1,7 @@
 #pragma once
 
 #include "esphome/core/component.h"
-#include "esphome/components/switch/template_switch.h"
+#include "esphome/components/switch/switch.h"
 #include "esphome/components/binary_sensor/binary_sensor.h"
 #include "esphome/components/output/binary_output.h"
 
@@ -10,7 +10,7 @@ namespace valve_sequencer {
 
 // A small helper struct to hold all parts of a circuit together
 struct Circuit {
-  switch_::TemplateSwitch *control_switch;
+  switch_::Switch *control_switch;
   output::BinaryOutput *valve_output;
   binary_sensor::BinarySensor *status_sensor;
   binary_sensor::BinarySensor *moving_sensor;
