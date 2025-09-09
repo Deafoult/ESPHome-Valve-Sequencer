@@ -81,7 +81,11 @@ async def to_code(config):
         #    b) It converts the simple string ID (e.g., "my_switch") into a full C++ ID object
         #       (an `ID` instance with a `.type` attribute), which is required by `new_Pvariable` later.
         # Failure to do this correctly leads to `AttributeError: 'EStr' object has no attribute 'type'`.
-        switch_config = template.SWITCH_SCHEMA(switch_config)
+        # The correct way is to call the base component's schema (switch.SWITCH_SCHEMA). This schema
+        # will look at the `platform` key in the provided dict and automatically apply the correct
+        # platform-specific schema (in this case, for the 'template' switch).
+        # This was the source of the previous errors.
+        switch_config = switch.SWITCH_SCHEMA(switch_config)
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
