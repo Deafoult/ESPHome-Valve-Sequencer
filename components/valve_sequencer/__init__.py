@@ -1,6 +1,7 @@
 import esphome.codegen as cg
 import esphome.config_validation as cv
-from esphome.components import switch, binary_sensor, output, template
+from esphome.components import switch, binary_sensor, output
+from esphome.components.template import switch as template_switch
 from esphome.const import (
     CONF_ID,
     CONF_OUTPUT,
@@ -84,7 +85,9 @@ async def to_code(config):
         # The correct way to validate a dynamic platform config is to call the CONFIG_SCHEMA
         # from the specific platform's module (here: template.switch). This schema call
         # handles the validation and the crucial conversion of the string ID to a C++ ID object.
-        switch_config = template.switch.CONFIG_SCHEMA(switch_config)
+                # from the specific platform's module (here: template.switch). This schema call
+        # handles the validation and the crucial conversion of the string ID to a C++ ID object.
+        switch_config = template_switch.CONFIG_SCHEMA(switch_config)
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
