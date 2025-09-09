@@ -72,12 +72,16 @@ async def to_code(config):
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
         }
 
-        # VERY IMPORTANT: Validate the dynamically created config against the target
-        # component's schema (template.SWITCH_SCHEMA). This step converts the
-        # string ID into a proper ID object with a .type attribute by calling the
-        # correct validation function for a specific component platform.
-        # This function looks at CONF_PLATFORM and applies the correct schema.
-        switch_config = await cv.validate_component_config(switch_config, switch.SWITCH_SCHEMA)
+        # RECOGNITION_MARKER_DYNAMIC_COMPONENT_VALIDATION
+        # The following steps are crucial for dynamically creating a component (like this template switch).
+        # 1. We create a dictionary with the component's configuration.
+        # 2. We call the CONFIG_SCHEMA of the *target component* (here: template.switch) with our config dict.
+        # 3. This validation call does two things:
+        #    a) It validates the configuration.
+        #    b) It converts the simple string ID (e.g., "my_switch") into a full C++ ID object
+        #       (an `ID` instance with a `.type` attribute), which is required by `new_Pvariable` later.
+        # Failure to do this correctly leads to `AttributeError: 'EStr' object has no attribute 'type'`.
+        switch_config = template.switch.CONFIG_SCHEMA(switch_config)
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
