@@ -72,36 +72,26 @@ async def to_code(config):
             CONF_ID: circuit_config.get(CONF_ID) or f"valve_sequencer_switch_{i}",
             CONF_OPTIMISTIC: True,
         }
-
-        # RECOGNITION_MARKER_DYNAMIC_COMPONENT_VALIDATION
-        # The following steps are crucial for dynamically creating a component (like this template switch).
-        # 1. We create a dictionary with the component's configuration.
-        # 2. We call the CONFIG_SCHEMA of the *target component* (here: template.switch) with our config dict.
-        # 3. This validation call does two things:
-        #    a) It validates the configuration.
-        #    b) It converts the simple string ID (e.g., "my_switch") into a full C++ ID object
-        #       (an `ID` instance with a `.type` attribute), which is required by `new_Pvariable` later.
-        # Failure to do this correctly leads to `AttributeError: 'EStr' object has no attribute 'type'`.
-        # The correct way to validate a dynamic platform config is to call the CONFIG_SCHEMA
-        # from the specific platform's module (here: template.switch). This schema call
-        # handles the validation and the crucial conversion of the string ID to a C++ ID object.
         switch_config = template_switch.CONFIG_SCHEMA(switch_config)
         sw = await switch.new_switch(switch_config)
 
         # Create the two Binary Sensors
-        status_sensor_conf = binary_sensor.binary_sensor_schema(
+        status_sensor_schema = binary_sensor.binary_sensor_schema(
             device_class=DEVICE_CLASS_OPENING
-        )({CONF_NAME: f"{circuit_config[CONF_NAME]} Status"})
+        )
+        status_sensor_conf = {CONF_NAME: f"{circuit_config[CONF_NAME]} Status"}
         if CONF_ID in circuit_config:
             status_sensor_conf[CONF_ID] = f"{circuit_config[CONF_ID]}_status"
+        status_sensor_conf = status_sensor_schema(status_sensor_conf)
+        status_sensor = await binary_sensor.new_binary_sensor(status_sensor_conf)
 
-        moving_sensor_conf = binary_sensor.binary_sensor_schema(
+        moving_sensor_schema = binary_sensor.binary_sensor_schema(
             device_class=DEVICE_CLASS_MOVING
-        )({CONF_NAME: f"{circuit_config[CONF_NAME]} Moving"})
+        )
+        moving_sensor_conf = {CONF_NAME: f"{circuit_config[CONF_NAME]} Moving"}
         if CONF_ID in circuit_config:
             moving_sensor_conf[CONF_ID] = f"{circuit_config[CONF_ID]}_moving"
-
-        status_sensor = await binary_sensor.new_binary_sensor(status_sensor_conf)
+        moving_sensor_conf = moving_sensor_schema(moving_sensor_conf)
         moving_sensor = await binary_sensor.new_binary_sensor(moving_sensor_conf)
 
         # Call the C++ method to add this circuit to the main component
